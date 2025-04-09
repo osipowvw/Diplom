@@ -7,7 +7,7 @@ class Chat(models.Model):
     """
     name = models.CharField(max_length=255, blank=True, null=True)  # Может быть пустым для личных чатов
     is_group = models.BooleanField(default=False)
-    participants = models.ManyToManyField(User, related_name='chats')
+    participants = models.ManyToManyField(User, related_name='chats', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -20,7 +20,7 @@ class Message(models.Model):
     chat = models.ForeignKey(Chat, related_name='messages', on_delete=models.CASCADE)
     sender = models.ForeignKey(User, related_name='messages', on_delete=models.CASCADE)
     content = models.TextField(blank=True)  # Текст сообщения
-    # Можно добавить поля для медиа, ссылки на файлы и т.п.
+    media = models.FileField(upload_to='message_media/', blank=True, null=True)  # Поле для медиа-файлов (изображений, аудио, видео и пр.)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -34,4 +34,3 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"Профиль пользователя {self.user.username}"
-    
