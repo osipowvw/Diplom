@@ -2,16 +2,13 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Chat(models.Model):
-    """
-    Модель для представления чата (личного или группового).
-    """
-    name = models.CharField(max_length=255, blank=True, null=True)  # Может быть пустым для личных чатов
-    is_group = models.BooleanField(default=False)
-    participants = models.ManyToManyField(User, related_name='chats', blank=True)
+    name = models.CharField(max_length=255, blank=True, null=True)
+    participants = models.ManyToManyField(User, related_name='chats')
     created_at = models.DateTimeField(auto_now_add=True)
+    is_group = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.name if self.name else f"Чат {self.pk}"
+        return self.name or f"Чат {self.pk}"
 
 class Message(models.Model):
     """

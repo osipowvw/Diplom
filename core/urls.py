@@ -1,7 +1,8 @@
 from django.urls import path
 from .views import (
     UserRegistrationView, ProtectedView, ChatListCreateView,
-    MessageListCreateView, ProfileDetailUpdateView, UserSearchView
+    MessageListCreateView, ProfileDetailUpdateView, UserSearchView,
+    SearchOrCreateChatView
 )
 
 urlpatterns = [
@@ -11,4 +12,5 @@ urlpatterns = [
     path('chats/<int:chat_id>/messages/', MessageListCreateView.as_view(), name='messages'),
     path('profile/', ProfileDetailUpdateView.as_view(), name='profile'),
     path('users/search/', UserSearchView.as_view(), name='user_search'),
+    path('chats/find_or_create/', SearchOrCreateChatView.as_view(), name='find_or_create_chat'),
 ]

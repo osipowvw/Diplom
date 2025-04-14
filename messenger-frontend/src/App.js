@@ -5,28 +5,23 @@ import Register from './components/Auth/Register';
 import ChatList from './components/ChatList/ChatList';
 import ChatWindow from './components/ChatWindow/ChatWindow';
 import Profile from './components/Profile/Profile';
+import './App.css';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('accessToken'));
 
   return (
     <Router>
-      <Routes>
-        {/* Страница регистрации */}
-        <Route path="/register" element={<Register />} />
-        {/* Страница входа */}
-        <Route path="/login" element={<Login onLogin={(t) => setToken(t)} />} />
-        {token ? (
-          <>
-            <Route path="/chats" element={<ChatList token={token} />} />
-            <Route path="/chat/:chatId" element={<ChatWindow />} />
-            <Route path="/profile" element={<Profile token={token} />} />
-            <Route path="*" element={<Navigate to="/chats" />} />
-          </>
-        ) : (
-          <Route path="*" element={<Navigate to="/login" />} />
-        )}
-      </Routes>
+      <div className="app-container">
+        <ChatList token={token} />
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/profile" element={<Profile token={token} />} />
+          <Route path="/chat/:chatId" element={<ChatWindow token={token} />} />
+          <Route path="*" element={<div>Выберите чат или войдите</div>} />
+        </Routes>
+      </div>
     </Router>
   );
 }
