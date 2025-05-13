@@ -1,10 +1,12 @@
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from rest_framework.filters import SearchFilter
 from django.contrib.auth import get_user_model
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 from .models import Chat, Message, Profile
 from .serializers import (
@@ -39,6 +41,7 @@ class ChatListCreateView(generics.ListCreateAPIView):
 class MessageListCreateView(generics.ListCreateAPIView):
     serializer_class = MessageSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get_queryset(self):
         chat_id = self.kwargs.get('chat_id')
@@ -51,9 +54,11 @@ class MessageListCreateView(generics.ListCreateAPIView):
 class ProfileDetailUpdateView(generics.RetrieveUpdateAPIView):
     serializer_class = ProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_object(self):
-        return self.request.user.profile
+        profile, created = Profile.objects.get_or_create(user=self.request.user)
+        return profile
 
 class UserSearchView(generics.ListAPIView):
     serializer_class = UserSearchSerializer

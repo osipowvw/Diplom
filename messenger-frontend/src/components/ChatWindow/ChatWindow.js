@@ -1,9 +1,10 @@
+// src/components/ChatWindow/ChatWindow.js
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Navigate } from 'react-router-dom';
 import API, { setAuthToken, getUserIdFromToken } from '../../services/api';
 import '../../App.css';
 
-function ChatWindow({ token: propToken }) {
+export default function ChatWindow({ token: propToken }) {
   const { chatId } = useParams();
   const token = propToken || localStorage.getItem('accessToken');
   const currentUserId = getUserIdFromToken(token);
@@ -18,17 +19,47 @@ function ChatWindow({ token: propToken }) {
   const fileInputRef = useRef();
   const wsInitializedRef = useRef(false);
 
+  // Хелпер для получения «читаемого» имени файла
+  const getFileName = url => {
+    try {
+      return decodeURIComponent(url.split('/').pop().split('?')[0]);
+    } catch {
+      return 'file';
+    }
+  };
+
+  // Рендер вложений: картинка, видео или ссылка
+  const renderAttachment = url => {
+    if (!url) return null;
+    if (url.match(/\.(jpe?g|png|gif|bmp)$/i)) {
+      return <img src={url} alt={getFileName(url)} className="msg-media" />;
+    }
+    if (url.match(/\.(mp4|webm|ogg)$/i)) {
+      return <video src={url} controls className="msg-media" />;
+    }
+    return (
+      <a
+        href={url}
+        download
+        className="msg-media file-link"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        📎 {getFileName(url)}
+      </a>
+    );
+  };
+
   // Загрузка информации о чате и истории сообщений
   useEffect(() => {
-    if (token && chatId) {
-      setAuthToken(token);
-      API.get(`chats/${chatId}/`)
-        .then(res => setChatInfo(res.data))
-        .catch(err => console.error('Ошибка чата:', err));
-      API.get(`chats/${chatId}/messages/`)
-        .then(res => setMessages(res.data))
-        .catch(err => console.error('Ошибка получения сообщений:', err));
-    }
+    if (!token) return;
+    setAuthToken(token);
+    API.get(`chats/${chatId}/`)
+      .then(res => setChatInfo(res.data))
+      .catch(err => console.error('Ошибка чата:', err));
+    API.get(`chats/${chatId}/messages/`)
+      .then(res => setMessages(res.data))
+      .catch(err => console.error('Ошибка сообщений:', err));
   }, [chatId, token]);
 
   // WebSocket-подключение
@@ -40,38 +71,49 @@ function ChatWindow({ token: propToken }) {
       `ws://127.0.0.1:8000/ws/chat/${chatId}/?token=${token}`
     );
 
-    socket.onopen = () => console.log('WS установлено');
+    socket.onopen = () => console.log('WS подключено');
     socket.onmessage = e => {
       const data = JSON.parse(e.data);
-      if (data.message) {
-        setMessages(prev => [...prev, {
-          ...data,
-          content: data.message,
-          sender: data.sender_id
-        }]);
+      if (data.message || data.media_url) {
+        setMessages(prev => [
+          ...prev,
+          {
+            id: data.id || Date.now(),
+            content: data.message || '',
+            sender: data.sender_id,
+            media: data.media_url || null,
+          }
+        ]);
       }
     };
     socket.onerror = err => console.error('WS ошибка:', err);
-    socket.onclose = e => {
-      console.log('WS закрыто', e.code);
+    socket.onclose = () => {
       wsInitializedRef.current = false;
     };
 
     setWs(socket);
     return () => {
-      if (socket.readyState !== WebSocket.CLOSED) socket.close();
+      // заменили "логическое И" на if
+      if (socket.readyState !== WebSocket.CLOSED) {
+        socket.close();
+      }
       wsInitializedRef.current = false;
     };
   }, [chatId, token]);
 
-  // Автопрокрутка
+  // Автоскролл вниз при новом сообщении
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
 
-  // Отправка (текст или медиа)
+  // Редирект на логин, если нет токена
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Отправка сообщения или файла
   const handleSend = async () => {
     if (mediaFile) {
       const form = new FormData();
@@ -95,7 +137,7 @@ function ChatWindow({ token: propToken }) {
     }
   };
 
-  // Вычисляем имя окна: имя собеседника
+  // Определяем заголовок — ник собеседника или название группы
   let headerName = `Чат ${chatId}`;
   if (chatInfo) {
     if (!chatInfo.is_group) {
@@ -110,7 +152,9 @@ function ChatWindow({ token: propToken }) {
 
   return (
     <div className="chat-window-container">
-      <div className="chat-window-header">{headerName}</div>
+      <div className="chat-window-header">
+        ← {headerName}
+      </div>
 
       <div className="chat-messages">
         {messages.map((msg, i) => {
@@ -118,13 +162,11 @@ function ChatWindow({ token: propToken }) {
           const cls = isOwn
             ? 'chat-message chat-message-self'
             : 'chat-message chat-message-other';
+
           return (
             <div key={i} className={cls}>
-              {msg.content}
-              {/* если есть медиа */}
-              {msg.media && (
-                <div><img src={msg.media} alt="media" style={{ maxWidth: '100%' }}/></div>
-              )}
+              {renderAttachment(msg.media)}
+              {msg.content && <div className="msg-text">{msg.content}</div>}
             </div>
           );
         })}
@@ -135,12 +177,15 @@ function ChatWindow({ token: propToken }) {
         <button
           className="chat-media-button"
           onClick={() => fileInputRef.current.click()}
-        >📎</button>
+          title="Прикрепить файл"
+        >
+          📎
+        </button>
         <input
           ref={fileInputRef}
           type="file"
-          style={{ display: 'none'
-          }}
+          accept="*/*"
+          style={{ display: 'none' }}
           onChange={e => setMediaFile(e.target.files[0])}
         />
         <input
@@ -149,12 +194,17 @@ function ChatWindow({ token: propToken }) {
           value={content}
           onChange={e => setContent(e.target.value)}
           placeholder="Введите сообщение..."
-          onKeyDown={e => e.key === 'Enter' && handleSend()}
+          // заменил «&&» на if-вызов внутри тела стрелки
+          onKeyDown={e => { if (e.key === 'Enter') handleSend(); }}
         />
-        <button className="chat-send-button" onClick={handleSend}>✈️</button>
+        <button
+          className="chat-send-button"
+          onClick={handleSend}
+          title="Отправить"
+        >
+          ✈️
+        </button>
       </div>
     </div>
   );
 }
-
-export default ChatWindow;

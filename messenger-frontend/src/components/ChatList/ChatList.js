@@ -1,22 +1,21 @@
+// src/components/ChatList/ChatList.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API, { setAuthToken, getUserIdFromToken } from '../../services/api';
 import '../../App.css';
 
-function ChatList({ token: propToken }) {
-  const token = propToken || localStorage.getItem('accessToken');
+function ChatList({ token }) {
   const currentUserId = getUserIdFromToken(token);
-  const [chats, setChats] = useState([]);
-  const [search, setSearch] = useState('');
+  const [chats, setChats]       = useState([]);
+  const [search, setSearch]     = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (token) {
-      setAuthToken(token);
-      API.get('chats/')
-        .then(response => setChats(response.data))
-        .catch(err => console.error('Ошибка получения чатов:', err));
-    }
+    if (!token) return;
+    setAuthToken(token);
+    API.get('chats/')
+      .then(res => setChats(res.data))
+      .catch(err => console.error('Ошибка получения чатов:', err));
   }, [token]);
 
   const handleSearch = () => {
@@ -40,11 +39,10 @@ function ChatList({ token: propToken }) {
 
       <div className="chat-list-items">
         {chats.map(chat => {
-          // находим ник собеседника
-          const otherUsernames = chat.participants_usernames.filter((_, idx) =>
-            chat.participants[idx] !== currentUserId
-          );
-          const otherName = otherUsernames[0] || `Чат ${chat.id}`;
+          // Определяем ник второго участника
+          const other = chat.participants_usernames.filter(
+            (_, i) => chat.participants[i] !== currentUserId
+          )[0] || `Чат ${chat.id}`;
 
           return (
             <div
@@ -53,7 +51,7 @@ function ChatList({ token: propToken }) {
               onClick={() => navigate(`/chat/${chat.id}`)}
             >
               <div className="avatar" />
-              <div className="username">{otherName}</div>
+              <div className="username">{other}</div>
             </div>
           );
         })}

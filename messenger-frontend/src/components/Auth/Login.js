@@ -1,22 +1,33 @@
+// src/components/Auth/Login.js
 import React, { useState } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import API, { setAuthToken } from '../../services/api';
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(''); // <-- добавляем состояние для ошибки
+  const [error, setError]       = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/token/', {
-        username,
-        password,
-      });
-      const { access } = response.data;
-      localStorage.setItem('accessToken', access);
-      if (onLogin) onLogin(access);
-      setError(''); // сбрасываем ошибку при успехе
+      // POST http://127.0.0.1:8000/api/token/
+      const { data } = await API.post('token/', { username, password });
+
+      // Сохраняем оба токена
+      localStorage.setItem('accessToken',  data.access);
+      localStorage.setItem('refreshToken', data.refresh);
+
+      // Устанавливаем в заголовки для всех будущих запросов
+      setAuthToken(data.access);
+
+      // Поднимаем новый токен наверх (App.js)
+      if (onLogin) onLogin(data.access);
+
+      // Перенаправляем в корень (список чатов слева + сообщение «Выберите чат» справа)
+      navigate('/', { replace: true });
+      setError('');
     } catch (err) {
       console.error('Ошибка входа:', err);
       setError('Неверные учетные данные или проблема с сетью');
@@ -26,7 +37,6 @@ function Login({ onLogin }) {
   return (
     <div className="form-container">
       <div className="form-title">Вход</div>
-      {/* Если error непустой, выводим */}
       {error && <div className="error-message">{error}</div>}
 
       <form onSubmit={handleSubmit}>
@@ -50,7 +60,9 @@ function Login({ onLogin }) {
           />
         </div>
 
-        <button className="form-button" type="submit">Войти</button>
+        <button className="form-button" type="submit">
+          Войти
+        </button>
       </form>
     </div>
   );

@@ -1,65 +1,57 @@
+// src/components/Profile/Profile.js
 import React, { useEffect, useState } from 'react';
 import API, { setAuthToken } from '../../services/api';
 
-function Profile({ token: propToken }) {
-  // Берем токен либо из пропсов, либо из localStorage
-  const token = propToken || localStorage.getItem('accessToken');
-  console.log("Token in Profile:", token);
-  
+function Profile({ token }) {
+  // всегда используем из пропса (актуальный после логина)
   const [profile, setProfile] = useState(null);
-  const [phone, setPhone] = useState('');
-  const [bio, setBio] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('');
+  const [phone,   setPhone]   = useState('');
+  const [bio,     setBio]     = useState('');
+  const [avatarUrl,  setAvatarUrl ]  = useState('');
   const [avatarFile, setAvatarFile] = useState(null);
 
   useEffect(() => {
-    if (token) {
-      // Устанавливаем заголовок Authorization для нашего API-инстанса
-      setAuthToken(token);
-      // Используем API.get, чтобы гарантировать, что заголовок передается
-      API.get('profile/')
-        .then(response => {
-          setProfile(response.data);
-          setPhone(response.data.phone || '');
-          setBio(response.data.bio || '');
-          setAvatarUrl(response.data.avatar || '');
-        })
-        .catch(err => {
-          console.error('Ошибка получения профиля:', err);
-        });
-    }
+    if (!token) return;
+    setAuthToken(token);
+    API.get('profile/')
+      .then(res => {
+        setProfile(res.data);
+        setPhone(res.data.phone || '');
+        setBio(res.data.bio || '');
+        setAvatarUrl(res.data.avatar || '');
+      })
+      .catch(err => console.error('Ошибка получения профиля:', err));
   }, [token]);
 
-  const handleAvatarChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
+  const handleAvatarChange = e => {
+    if (e.target.files[0]) {
       setAvatarFile(e.target.files[0]);
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = e => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('phone', phone);
-    formData.append('bio', bio);
-    if (avatarFile) {
-      formData.append('avatar', avatarFile);
-    }
+    const form = new FormData();
+    form.append('phone', phone);
+    form.append('bio', bio);
+    if (avatarFile) form.append('avatar', avatarFile);
 
-    API.put('profile/', formData, {
+    API.put('profile/', form, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
       .then(res => {
         setProfile(res.data);
+        setAvatarUrl(res.data.avatar || '');
         alert('Профиль обновлен!');
       })
       .catch(err => {
         console.error('Ошибка обновления профиля:', err);
-        alert('Ошибка обновления профиля');
+        alert('Не удалось обновить профиль');
       });
   };
 
   return (
-    <div>
+    <div className="profile-container">
       <h2>Профиль</h2>
       {profile ? (
         <form onSubmit={handleSubmit}>
@@ -71,28 +63,43 @@ function Profile({ token: propToken }) {
             <label>Email:</label>
             <span>{profile.email}</span>
           </div>
+
           <div>
             <label>Телефон:</label>
             <input
               type="text"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={e => setPhone(e.target.value)}
               placeholder="Телефон"
             />
           </div>
+
           <div>
             <label>О себе:</label>
             <textarea
               value={bio}
-              onChange={(e) => setBio(e.target.value)}
+              onChange={e => setBio(e.target.value)}
               placeholder="Кратко о себе"
             />
           </div>
+
           <div>
             <label>Аватар:</label>
-            {avatarUrl && <img src={avatarUrl} alt="avatar" height="100" />}
-            <input type="file" name="avatar" onChange={handleAvatarChange} />
+            {avatarUrl && (
+              <img
+                src={avatarUrl}
+                alt="avatar"
+                height="100"
+                style={{ display: 'block', marginBottom: 8 }}
+              />
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarChange}
+            />
           </div>
+
           <button type="submit">Обновить профиль</button>
         </form>
       ) : (

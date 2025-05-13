@@ -200,3 +200,42 @@ body, html {
   font-size: 0.9rem;
   margin-bottom: 8px;
 }
+
+.msg-media {
+  max-width: 200px;
+  margin-bottom: 4px;
+  border-radius: 4px;
+}
+
+.msg-media.video {
+  max-height: 150px;
+}
+
+.msg-media.image {
+  border-radius: 4px;
+}
+
+.file-link {
+  display: inline-block;
+  color: #1a73e8;
+  text-decoration: none;
+  margin-bottom: 4px;
+}
+
+.file-link:hover {
+  text-decoration: underline;
+}
+
+.chat-message {
+  margin: 8px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-message-self {
+  align-items: flex-end;
+}
+
+.chat-message-other {
+  align-items: flex-start;
+}

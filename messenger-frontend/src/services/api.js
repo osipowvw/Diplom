@@ -1,11 +1,13 @@
+// src/services/api.js
 import axios from 'axios';
-const jwt_decode = require('jwt-decode');
 
+// базовый URL вашего бэка
 const API = axios.create({
   baseURL: 'http://127.0.0.1:8000/api/',
 });
 
-export const setAuthToken = (token) => {
+// Устанавливает или убирает заголовок Authorization
+export const setAuthToken = token => {
   if (token) {
     API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   } else {
@@ -13,13 +15,15 @@ export const setAuthToken = (token) => {
   }
 };
 
-export function getUserIdFromToken(token) {
+// Вычленяет user_id из JWT
+export const getUserIdFromToken = token => {
+  if (!token) return null;
   try {
-    const decoded = jwt_decode(token);
-    return decoded.user_id;
-  } catch (e) {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.user_id;
+  } catch {
     return null;
   }
-}
+};
 
 export default API;
