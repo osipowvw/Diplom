@@ -1,13 +1,13 @@
-// src/components/ChatList/ChatList.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API, { setAuthToken, getUserIdFromToken } from '../../services/api';
 import '../../App.css';
 
-function ChatList({ token }) {
+function ChatList({ token: propToken }) {
+  const token = propToken || localStorage.getItem('accessToken');
   const currentUserId = getUserIdFromToken(token);
-  const [chats, setChats]       = useState([]);
-  const [search, setSearch]     = useState('');
+  const [chats, setChats] = useState([]);
+  const [search, setSearch] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,24 +26,35 @@ function ChatList({ token }) {
   };
 
   return (
-    <div className="chat-list">
+    <div className="chat-list-container">
+      {/* Заголовок + кнопка «Профиль» */}
+      <div className="chat-list-header">
+        <div className="chat-list-title">Чаты</div>
+        <button
+          className="profile-btn"
+          title="Перейти в профиль"
+          onClick={() => navigate('/profile')}
+        >👤</button>
+      </div>
+
+      {/* Поиск */}
       <div className="chat-list-search">
         <input
           type="text"
-          placeholder="Найти пользователя по нику"
+          placeholder="Найти пользователя..."
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
         <button onClick={handleSearch}>Найти</button>
       </div>
 
+      {/* Список чатов */}
       <div className="chat-list-items">
         {chats.map(chat => {
-          // Определяем ник второго участника
-          const other = chat.participants_usernames.filter(
-            (_, i) => chat.participants[i] !== currentUserId
-          )[0] || `Чат ${chat.id}`;
-
+          const otherUsernames = chat.participants_usernames.filter((_, i) =>
+            chat.participants[i] !== currentUserId
+          );
+          const otherName = otherUsernames[0] || `Чат ${chat.id}`;
           return (
             <div
               key={chat.id}
@@ -51,7 +62,7 @@ function ChatList({ token }) {
               onClick={() => navigate(`/chat/${chat.id}`)}
             >
               <div className="avatar" />
-              <div className="username">{other}</div>
+              <div className="username">{otherName}</div>
             </div>
           );
         })}

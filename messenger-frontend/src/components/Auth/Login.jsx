@@ -1,7 +1,7 @@
 // src/components/Auth/Login.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import API, { setAuthToken } from '../../services/api';
+import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState('');
@@ -12,22 +12,17 @@ function Login({ onLogin }) {
   const handleSubmit = async e => {
     e.preventDefault();
     try {
-      // POST http://127.0.0.1:8000/api/token/
-      const { data } = await API.post('token/', { username, password });
+      const { data } = await axios.post(
+        'http://127.0.0.1:8000/api/token/',
+        { username, password }
+      );
 
-      // Сохраняем оба токена
       localStorage.setItem('accessToken',  data.access);
       localStorage.setItem('refreshToken', data.refresh);
+      onLogin && onLogin(data.access);
 
-      // Устанавливаем в заголовки для всех будущих запросов
-      setAuthToken(data.access);
-
-      // Поднимаем новый токен наверх (App.js)
-      if (onLogin) onLogin(data.access);
-
-      // Перенаправляем в корень (список чатов слева + сообщение «Выберите чат» справа)
-      navigate('/', { replace: true });
       setError('');
+      navigate('/', { replace: true });
     } catch (err) {
       console.error('Ошибка входа:', err);
       setError('Неверные учетные данные или проблема с сетью');
@@ -64,6 +59,10 @@ function Login({ onLogin }) {
           Войти
         </button>
       </form>
+
+      <div className="redirect-link">
+        Ещё нет аккаунта? <Link to="/register">Зарегистрироваться</Link>
+      </div>
     </div>
   );
 }
