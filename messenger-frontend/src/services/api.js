@@ -1,29 +1,33 @@
 // src/services/api.js
 import axios from 'axios';
 
-// базовый URL вашего бэка
 const API = axios.create({
   baseURL: 'http://127.0.0.1:8000/api/',
 });
 
-// Устанавливает или убирает заголовок Authorization
-export const setAuthToken = token => {
+// Передавать токен в заголовок Authorization
+export function setAuthToken(token) {
   if (token) {
     API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   } else {
     delete API.defaults.headers.common['Authorization'];
   }
-};
+}
 
-// Вычленяет user_id из JWT
-export const getUserIdFromToken = token => {
+// Парсер user_id из токена, если нужен
+export function getUserIdFromToken(token) {
   if (!token) return null;
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    const payload = JSON.parse(window.atob(token.split('.')[1]));
     return payload.user_id;
   } catch {
     return null;
   }
-};
+}
+
+// Новый API-метод
+export function createGroupChat(name, user_ids) {
+  return API.post('chats/group_create/', { name, user_ids });
+}
 
 export default API;
