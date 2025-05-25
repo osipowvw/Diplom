@@ -1,5 +1,4 @@
-// src/components/ChatList/ChatList.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API, {
   setAuthToken,
@@ -18,7 +17,7 @@ export default function ChatList({ token: propToken }) {
   const [selectedIds, setSelectedIds] = useState([]);
   const navigate       = useNavigate();
 
-  // Загружаем список чатов
+  // Загрузка списка чатов
   useEffect(() => {
     if (!token) return;
     setAuthToken(token);
@@ -27,53 +26,52 @@ export default function ChatList({ token: propToken }) {
        .catch(err => console.error('Ошибка получения чатов:', err));
   }, [token]);
 
-  // Поиск или создание личного чата
+  // Формируем список «контактов» — пользователей из личных диалогов
+  const contacts = useMemo(() => {
+    const list = [];
+    chats.forEach(chat => {
+      if (!chat.is_group) {
+        const idx = chat.participants.indexOf(currentUserId);
+        const otherIdx = idx === 0 ? 1 : 0;
+        const id = chat.participants[otherIdx];
+        const username = chat.participants_usernames[otherIdx];
+        if (!list.find(u => u.id === id)) {
+          list.push({ id, username });
+        }
+      }
+    });
+    return list;
+  }, [chats, currentUserId]);
+
+  // Личный чат по нику
   const handleSearch = () => {
     if (!search.trim()) return;
     API.post('chats/find_or_create/', { username: search.trim() })
        .then(res => {
          const chat = res.data;
-         // вычисляем имя собеседника
          const other = chat.participants_usernames.filter(
            (_, i) => chat.participants[i] !== currentUserId
          );
          const name = other[0] || `Чат ${chat.id}`;
          navigate(`/chat/${chat.id}`, { state: { name } });
        })
-       .catch(err => console.error('Ошибка создания чата:', err));
+       .catch(err => console.error(err));
   };
 
-  // Список контактных пользователей (из личных чатов)
-  const contacts = React.useMemo(() => {
-    return chats
-      .filter(c => !c.is_group)
-      .map(c => {
-        const idx = c.participants.indexOf(currentUserId);
-        const otherIdx = idx === 0 ? 1 : 0;
-        return {
-          id: c.participants[otherIdx],
-          username: c.participants_usernames[otherIdx]
-        };
-      })
-      // убрать дубли
-      .reduce((acc, u) => {
-        if (!acc.find(x => x.id === u.id)) acc.push(u);
-        return acc;
-      }, []);
-  }, [chats, currentUserId]);
-
-  // Открыть/закрыть попап
-  const openGroupModal = () => {
+  // Открыть / закрыть модалку
+  const openModal  = () => {
     setGroupName('');
     setSelectedIds([]);
     setShowGroupModal(true);
   };
-  const closeGroupModal = () => setShowGroupModal(false);
+  const closeModal = () => setShowGroupModal(false);
 
-  // Переключаем чекбокс участника
+  // Выбор / снятие выбора участника
   const toggleSelect = id => {
-    setSelectedIds(s =>
-      s.includes(id) ? s.filter(x => x !== id) : [...s, id]
+    setSelectedIds(prev =>
+      prev.includes(id)
+        ? prev.filter(x => x !== id)
+        : [...prev, id]
     );
   };
 
@@ -84,16 +82,13 @@ export default function ChatList({ token: propToken }) {
       .then(res => {
         const chat = res.data;
         navigate(`/chat/${chat.id}`, { state: { name: chat.name } });
-        closeGroupModal();
+        closeModal();
       })
-      .catch(err => {
-        console.error('Ошибка создания группового чата:', err);
-      });
+      .catch(err => console.error('Ошибка создания группы:', err));
   };
 
   return (
     <div className="chat-list-container">
-      {/* Header: название + кнопки */}
       <div className="chat-list-header">
         <div className="chat-list-title">Чаты</div>
         <button
@@ -104,11 +99,10 @@ export default function ChatList({ token: propToken }) {
         <button
           className="group-create-btn"
           title="Новый групповой чат"
-          onClick={openGroupModal}
+          onClick={openModal}
         >👥+</button>
       </div>
 
-      {/* Поиск личного чата */}
       <div className="chat-list-search">
         <input
           type="text"
@@ -119,44 +113,45 @@ export default function ChatList({ token: propToken }) {
         <button onClick={handleSearch}>Найти</button>
       </div>
 
-      {/* Список личных и групповых чатов */}
       <div className="chat-list-items">
         {chats.map(chat => {
-          // вычисляем отображаемое имя
-          let name = chat.name;
+          let title = chat.name;
           if (!chat.is_group) {
             const other = chat.participants_usernames.filter(
               (_, i) => chat.participants[i] !== currentUserId
             );
-            name = other[0] || `Чат ${chat.id}`;
+            title = other[0] || `Чат ${chat.id}`;
           }
           return (
             <div
               key={chat.id}
               className="chat-list-item"
-              onClick={() => navigate(`/chat/${chat.id}`, { state: { name } })}
+              onClick={() =>
+                navigate(`/chat/${chat.id}`, { state: { name: title } })
+              }
             >
               <div className="avatar" />
-              <div className="username">{name}</div>
+              <div className="username">{title}</div>
             </div>
           );
         })}
       </div>
 
-      {/* Попап создания группового чата */}
       {showGroupModal && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
             <h3>Новый групповой чат</h3>
-            <label>
-              Название:
+
+            <label className="modal-label">
+              Название группы:
               <input
                 type="text"
                 value={groupName}
                 onChange={e => setGroupName(e.target.value)}
-                placeholder="Введите имя группы"
+                placeholder="Имя группы"
               />
             </label>
+
             <div className="contacts-list">
               {contacts.map(u => (
                 <label key={u.id} className="contact-item">
@@ -169,11 +164,18 @@ export default function ChatList({ token: propToken }) {
                 </label>
               ))}
             </div>
+
             <div className="modal-actions">
-              <button onClick={handleCreateGroup} disabled={!groupName || !selectedIds.length}>
+              <button
+                className="btn"
+                onClick={handleCreateGroup}
+                disabled={!groupName.trim() || selectedIds.length === 0}
+              >
                 Создать
               </button>
-              <button onClick={closeGroupModal}>Отменить</button>
+              <button className="btn btn-secondary" onClick={closeModal}>
+                Отменить
+              </button>
             </div>
           </div>
         </div>

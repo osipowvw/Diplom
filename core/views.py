@@ -7,12 +7,66 @@ from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model           # * оставлено – пригодится
 from rest_framework.permissions import IsAuthenticated   #  <<<
+from django.http import FileResponse, Http404, HttpResponseForbidden
+import hmac, hashlib, time, os, jwt
+from django.conf import settings
+from django.core.files.storage import default_storage
+from django.views import View
+
 
 from .models import Chat, Message, Profile
 from .serializers import (UserRegistrationSerializer, ChatSerializer,
                           MessageSerializer, ProfileSerializer,
                           UserSearchSerializer)
 
+class MediaProxyView(View):
+    """
+    Отдаёт любой файл из MEDIA_ROOT по безопасному signed-URL:
+      GET /media-proxy/<path:file_path>?token=<jwt>
+    """
+    def get(self, request, file_path):
+        token = request.GET.get('token')
+        if not token:
+            return HttpResponseForbidden("Token required")
+
+        try:
+            payload = jwt.decode(
+                token,
+                settings.DOWNLOAD_TOKEN_KEY,
+                algorithms=["HS256"]
+            )
+        except jwt.ExpiredSignatureError:
+            return HttpResponseForbidden("Token expired")
+        except jwt.InvalidTokenError:
+            return HttpResponseForbidden("Invalid token")
+
+        # Дополнительно проверяем, что в самом токене путь совпадает с тем, что в URL
+        if payload.get("path") != file_path:
+            return HttpResponseForbidden("Path mismatch")
+
+        # Защита от выходя за MEDIA_ROOT
+        full_path = os.path.normpath(os.path.join(settings.MEDIA_ROOT, file_path))
+        if not full_path.startswith(str(settings.MEDIA_ROOT)):
+            return HttpResponseForbidden("Forbidden path")
+
+        if not os.path.exists(full_path):
+            raise Http404("File not found")
+
+        return FileResponse(open(full_path, "rb"), as_attachment=False)
+    
+def media_proxy(request):
+    path = request.GET.get('p','')
+    expires = int(request.GET.get('e','0'))
+    sig     = request.GET.get('s','')
+    good = hmac.new(
+        settings.DOWNLOAD_TOKEN_KEY.encode(),
+        f'{path}{expires}'.encode(),
+        hashlib.sha256
+    ).hexdigest()
+    if sig != good or expires < time.time():
+        raise Http404()
+    f = default_storage.open(path, 'rb')  # автоматически расшифруется
+    return FileResponse(f, as_attachment=True)
 
 def test_cors(request):
     return JsonResponse({"detail": "OK"})
