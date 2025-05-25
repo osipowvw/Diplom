@@ -1,0 +1,61 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: messenger_db
+      POSTGRES_USER: messenger_user
+      POSTGRES_PASSWORD: messenger_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  backend:
+    build:
+      context: .
+      dockerfile: messenger_project/Dockerfile
+    volumes:
+      - ./:/app:delegated
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=messenger_project.settings
+      - DB_HOST=db
+      - DB_NAME=messenger_db
+      - DB_USER=messenger_user
+      - DB_PASSWORD=messenger_pass
+      - DB_PORT=5432         # остаётся 5432, т.к. контейнер db слушает на 5432
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: .
+      dockerfile: messenger-frontend/Dockerfile
+    ports:
+      - "3000:3000"
+    # монтируем только то, что нужно, чтобы не затирать node_modules
+    volumes:
+      - ./messenger-frontend/src:/app/src:delegated
+      - ./messenger-frontend/public:/app/public:delegated
+      - frontend_node_modules:/app/node_modules:delegated
+
+    # важно: оставить tty и stdin, чтобы CRA dev-сервер не завершился
+    stdin_open: true      # аналог `-i`
+    tty: true             # аналог `-t`
+
+    environment:
+      - HOST=0.0.0.0
+      - BROWSER=none
+      - CHOKIDAR_USEPOLLING=true
+      - NODE_OPTIONS=--openssl-legacy-provider
+
+    # а ещё можно явно передать флаг --host через сам скрипт:
+    command: ["npm", "start", "--", "--host", "0.0.0.0"]
+
+volumes:
+  postgres_data:
+  frontend_node_modules:
