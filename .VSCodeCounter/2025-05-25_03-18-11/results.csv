@@ -1,0 +1,52 @@
+"filename", "language", "JavaScript", "JavaScript JSX", "PostCSS", "JSON", "HTML", "Python", "XML", "Markdown", "Properties", "comment", "blank", "total"
+"/Users/osipowvw/diplom/Diplom/.env", "Properties", 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 1, 4
+"/Users/osipowvw/diplom/Diplom/core/__init__.py", "Python", 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1
+"/Users/osipowvw/diplom/Diplom/core/admin.py", "Python", 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 2, 4
+"/Users/osipowvw/diplom/Diplom/core/apps.py", "Python", 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 4, 9
+"/Users/osipowvw/diplom/Diplom/core/consumers.py", "Python", 0, 0, 0, 0, 0, 48, 0, 0, 0, 4, 8, 60
+"/Users/osipowvw/diplom/Diplom/core/middleware.py", "Python", 0, 0, 0, 0, 0, 50, 0, 0, 0, 13, 8, 71
+"/Users/osipowvw/diplom/Diplom/core/migrations/0001_initial.py", "Python", 0, 0, 0, 0, 0, 30, 0, 0, 0, 1, 7, 38
+"/Users/osipowvw/diplom/Diplom/core/migrations/0002_profile.py", "Python", 0, 0, 0, 0, 0, 20, 0, 0, 0, 1, 6, 27
+"/Users/osipowvw/diplom/Diplom/core/migrations/0003_message_media_alter_chat_participants.py", "Python", 0, 0, 0, 0, 0, 19, 0, 0, 0, 1, 6, 26
+"/Users/osipowvw/diplom/Diplom/core/migrations/0004_alter_chat_participants.py", "Python", 0, 0, 0, 0, 0, 14, 0, 0, 0, 1, 6, 21
+"/Users/osipowvw/diplom/Diplom/core/migrations/0005_alter_message_content_alter_profile_bio_and_more.py", "Python", 0, 0, 0, 0, 0, 23, 0, 0, 0, 1, 6, 30
+"/Users/osipowvw/diplom/Diplom/core/migrations/__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1
+"/Users/osipowvw/diplom/Diplom/core/models.py", "Python", 0, 0, 0, 0, 0, 25, 0, 0, 0, 3, 7, 35
+"/Users/osipowvw/diplom/Diplom/core/routing.py", "Python", 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 2, 7
+"/Users/osipowvw/diplom/Diplom/core/serializers.py", "Python", 0, 0, 0, 0, 0, 69, 0, 0, 0, 5, 23, 97
+"/Users/osipowvw/diplom/Diplom/core/signals.py", "Python", 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 2, 10
+"/Users/osipowvw/diplom/Diplom/core/storage.py", "Python", 0, 0, 0, 0, 0, 20, 0, 0, 0, 1, 4, 25
+"/Users/osipowvw/diplom/Diplom/core/tests.py", "Python", 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 2, 4
+"/Users/osipowvw/diplom/Diplom/core/urls.py", "Python", 0, 0, 0, 0, 0, 17, 0, 0, 0, 0, 2, 19
+"/Users/osipowvw/diplom/Diplom/core/utils.py", "Python", 0, 0, 0, 0, 0, 13, 0, 0, 0, 7, 3, 23
+"/Users/osipowvw/diplom/Diplom/core/views.py", "Python", 0, 0, 0, 0, 0, 149, 0, 0, 0, 18, 49, 216
+"/Users/osipowvw/diplom/Diplom/manage.py", "Python", 0, 0, 0, 0, 0, 15, 0, 0, 0, 3, 5, 23
+"/Users/osipowvw/diplom/Diplom/messenger-frontend/README.md", "Markdown", 0, 0, 0, 0, 0, 0, 0, 38, 0, 0, 33, 71
+"/Users/osipowvw/diplom/Diplom/messenger-frontend/package-lock.json", "JSON", 0, 0, 0, 21915, 0, 0, 0, 0, 0, 0, 1, 21916
+"/Users/osipowvw/diplom/Diplom/messenger-frontend/package.json", "JSON", 0, 0, 0, 44, 0, 0, 0, 0, 0, 0, 1, 45
+"/Users/osipowvw/diplom/Diplom/messenger-frontend/public/index.html", "HTML", 0, 0, 0, 0, 20, 0, 0, 0, 0, 23, 1, 44
+"/Users/osipowvw/diplom/Diplom/messenger-frontend/public/manifest.json", "JSON", 0, 0, 0, 25, 0, 0, 0, 0, 0, 0, 1, 26
+"/Users/osipowvw/diplom/Diplom/messenger-frontend/src/App.css", "PostCSS", 0, 0, 498, 0, 0, 0, 0, 0, 0, 29, 51, 578
+"/Users/osipowvw/diplom/Diplom/messenger-frontend/src/App.jsx", "JavaScript JSX", 0, 58, 0, 0, 0, 0, 0, 0, 0, 9, 6, 73
+"/Users/osipowvw/diplom/Diplom/messenger-frontend/src/App.test.js", "JavaScript", 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 9
+"/Users/osipowvw/diplom/Diplom/messenger-frontend/src/components/Auth/Login.jsx", "JavaScript JSX", 0, 59, 0, 0, 0, 0, 0, 0, 0, 1, 11, 71
+"/Users/osipowvw/diplom/Diplom/messenger-frontend/src/components/Auth/Register.jsx", "JavaScript JSX", 0, 83, 0, 0, 0, 0, 0, 0, 0, 2, 11, 96
+"/Users/osipowvw/diplom/Diplom/messenger-frontend/src/components/ChatList/ChatList.jsx", "JavaScript JSX", 0, 165, 0, 0, 0, 0, 0, 0, 0, 6, 15, 186
+"/Users/osipowvw/diplom/Diplom/messenger-frontend/src/components/ChatWindow/ChatWindow.jsx", "JavaScript JSX", 0, 253, 0, 0, 0, 0, 0, 0, 0, 19, 30, 302
+"/Users/osipowvw/diplom/Diplom/messenger-frontend/src/components/GroupChatModal/GroupChatModal.jsx", "JavaScript JSX", 0, 69, 0, 0, 0, 0, 0, 0, 0, 0, 10, 79
+"/Users/osipowvw/diplom/Diplom/messenger-frontend/src/components/Profile/Profile.jsx", "JavaScript JSX", 0, 108, 0, 0, 0, 0, 0, 0, 0, 1, 14, 123
+"/Users/osipowvw/diplom/Diplom/messenger-frontend/src/index.css", "PostCSS", 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 2, 14
+"/Users/osipowvw/diplom/Diplom/messenger-frontend/src/index.jsx", "JavaScript JSX", 0, 11, 0, 0, 0, 0, 0, 0, 0, 3, 2, 16
+"/Users/osipowvw/diplom/Diplom/messenger-frontend/src/logo.svg", "XML", 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1
+"/Users/osipowvw/diplom/Diplom/messenger-frontend/src/polyfills.js", "JavaScript", 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4
+"/Users/osipowvw/diplom/Diplom/messenger-frontend/src/reportWebVitals.js", "JavaScript", 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 14
+"/Users/osipowvw/diplom/Diplom/messenger-frontend/src/services/api.js", "JavaScript", 24, 0, 0, 0, 0, 0, 0, 0, 0, 4, 6, 34
+"/Users/osipowvw/diplom/Diplom/messenger-frontend/src/setupTests.js", "JavaScript", 1, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1, 6
+"/Users/osipowvw/diplom/Diplom/messenger_project/__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1
+"/Users/osipowvw/diplom/Diplom/messenger_project/asgi.py", "Python", 0, 0, 0, 0, 0, 14, 0, 0, 0, 1, 5, 20
+"/Users/osipowvw/diplom/Diplom/messenger_project/settings.py", "Python", 0, 0, 0, 0, 0, 105, 0, 0, 0, 18, 25, 148
+"/Users/osipowvw/diplom/Diplom/messenger_project/urls.py", "Python", 0, 0, 0, 0, 0, 15, 0, 0, 0, 1, 4, 20
+"/Users/osipowvw/diplom/Diplom/messenger_project/wsgi.py", "Python", 0, 0, 0, 0, 0, 4, 0, 0, 0, 8, 5, 17
+"/Users/osipowvw/diplom/Diplom/package-lock.json", "JSON", 0, 0, 0, 21, 0, 0, 0, 0, 0, 0, 1, 22
+"/Users/osipowvw/diplom/Diplom/package.json", "JSON", 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 6
+"Total", "-", 48, 806, 510, 22010, 20, 671, 1, 38, 3, 190, 396, 24693
